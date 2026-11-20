@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FXA AI — Your Intelligent Creative Assistant</title>
+  <style>
+    :root {
+      --bg-main: #060913;
+      --bg-card: #0d1526;
+      --accent-blue: #2563eb;
+      --accent-purple: #7c3aed;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
+    body {
+      background: linear-gradient(160deg, var(--bg-main), var(--bg-card));
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    header {
+      padding: 16px;
+      border-bottom: 1px solid rgba(124, 58, 237, 0.25);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(6, 9, 19, 0.85);
+    }
+    .brand { font-weight: 800; font-size: 1.1rem; letter-spacing: 0.5px; color: #60a5fa; }
+    .tagline { font-size: 0.72rem; color: var(--text-muted); }
+    #chat-box {
+      flex: 1;
+      padding: 16px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .msg {
+      max-width: 85%;
+      padding: 12px 14px;
+      border-radius: 14px;
+      line-height: 1.45;
+      font-size: 0.95rem;
+    }
+    .ai {
+      align-self: flex-start;
+      background: #131f38;
+      border: 1px solid rgba(96, 165, 250, 0.25);
+    }
+    .user {
+      align-self: flex-end;
+      background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+    }
+    form {
+      padding: 12px;
+      display: flex;
+      gap: 8px;
+      border-top: 1px solid rgba(148, 163, 184, 0.15);
+      background: #060913;
+    }
+    input {
+      flex: 1;
+      padding: 12px 14px;
+      border-radius: 10px;
+      border: 1px solid #1e293b;
+      background: #0f172a;
+      color: var(--text-main);
+      outline: none;
+    }
+    button {
+      padding: 0 18px;
+      border: none;
+      border-radius: 10px;
+      background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+      color: #fff;
+      font-weight: 700;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div>
+      <div class="brand">FXA AI</div>
+      <div class="tagline">Your Intelligent Creative Assistant</div>
+    </div>
+    <span style="font-size:0.75rem;color:#a78bfa;">MVP v0.1</span>
+  </header>
+
+  <div id="chat-box">
+    <div class="msg ai">স্বাগতম! FXA AI-এর প্রথম ভার্সন রেডি। নিচে তোমার মেসেজ লিখে পাঠাও।</div>
+  </div>
+
+  <form id="chat-form">
+    <input id="msg-input" type="text" placeholder="এখানে লিখো..." required />
+    <button type="submit">Send</button>
+  </form>
+
+  <script>
+    const form = document.getElementById('chat-form');
+    const input = document.getElementById('msg-input');
+    const chatBox = document.getElementById('chat-box');
+
+    function addMsg(text, sender) {
+      const div = document.createElement('div');
+      div.className = 'msg ' + sender;
+      div.textContent = text;
+      chatBox.appendChild(div);
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const text = input.value.trim();
+      if (!text) return;
+      addMsg(text, 'user');
+      input.value = '';
+      setTimeout(() => {
+        addMsg('মেসেজ পেয়েছি: "' + text + '" — পরবর্তী ধাপে লাইভ AI কানেক্ট করা হবে।', 'ai');
+      }, 300);
+    });
+  </script>
+</body>
+</html>
