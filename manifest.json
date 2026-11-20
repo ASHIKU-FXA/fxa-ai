@@ -1,0 +1,22 @@
+{
+  "name": "FXA AI — Your Intelligent Creative Assistant",
+  "short_name": "FXA AI",
+  "description": "Your Intelligent Creative Assistant for Chat, Coding, Image/Video Studio, and Voice.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#060913",
+  "theme_color": "#0d1526",
+  "icons": [
+    {
+      "src": "https://via.placeholder.com/192/2563eb/ffffff?text=FXA",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://via.placeholder.com/512/7c3aed/ffffff?text=FXA",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
