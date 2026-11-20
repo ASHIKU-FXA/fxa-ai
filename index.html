@@ -3,6 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0d1526" />
+  <link rel="manifest" href="./manifest.json" />
   <title>FXA AI — Your Intelligent Creative Assistant</title>
   <style>
     :root {
@@ -22,15 +24,47 @@
       flex-direction: column;
     }
     header {
-      padding: 16px;
-      border-bottom: 1px solid rgba(124, 58, 237, 0.25);
+      padding: 14px 16px;
+      border-bottom: 1px solid rgba(124, 58, 237, 0.28);
       display: flex;
       justify-content: space-between;
       align-items: center;
-      background: rgba(6, 9, 19, 0.85);
+      background: rgba(6, 9, 19, 0.9);
     }
-    .brand { font-weight: 800; font-size: 1.1rem; letter-spacing: 0.5px; color: #60a5fa; }
+    .brand { font-weight: 800; font-size: 1.15rem; letter-spacing: 0.6px; color: #60a5fa; }
     .tagline { font-size: 0.72rem; color: var(--text-muted); }
+    .badge {
+      font-size: 0.72rem;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: rgba(124, 58, 237, 0.2);
+      border: 1px solid rgba(167, 139, 250, 0.35);
+      color: #c4b5fd;
+    }
+    .modes {
+      display: flex;
+      gap: 8px;
+      padding: 10px 14px;
+      overflow-x: auto;
+      background: rgba(13, 21, 38, 0.75);
+      border-bottom: 1px solid rgba(148, 163, 184, 0.12);
+    }
+    .mode-btn {
+      padding: 7px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(96, 165, 250, 0.25);
+      background: #0b1222;
+      color: var(--text-muted);
+      font-size: 0.78rem;
+      font-weight: 600;
+      white-space: nowrap;
+      cursor: pointer;
+    }
+    .mode-btn.active {
+      background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+      color: #fff;
+      border-color: transparent;
+    }
     #chat-box {
       flex: 1;
       padding: 16px;
@@ -40,11 +74,12 @@
       gap: 12px;
     }
     .msg {
-      max-width: 85%;
+      max-width: 86%;
       padding: 12px 14px;
       border-radius: 14px;
-      line-height: 1.45;
-      font-size: 0.95rem;
+      line-height: 1.48;
+      font-size: 0.94rem;
+      white-space: pre-wrap;
     }
     .ai {
       align-self: flex-start;
@@ -71,12 +106,21 @@
       color: var(--text-main);
       outline: none;
     }
-    button {
-      padding: 0 18px;
+    .btn-action {
+      padding: 0 16px;
       border: none;
       border-radius: 10px;
       background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
       color: #fff;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-voice {
+      padding: 0 12px;
+      border-radius: 10px;
+      border: 1px solid rgba(167, 139, 250, 0.35);
+      background: #131c31;
+      color: #e2e8f0;
       font-weight: 700;
       cursor: pointer;
     }
@@ -88,22 +132,50 @@
       <div class="brand">FXA AI</div>
       <div class="tagline">Your Intelligent Creative Assistant</div>
     </div>
-    <span style="font-size:0.75rem;color:#a78bfa;">MVP v0.1</span>
+    <span class="badge" id="active-mode-badge">AI Chat</span>
   </header>
 
+  <div class="modes" id="mode-bar">
+    <button class="mode-btn active" data-mode="AI Chat">AI Chat</button>
+    <button class="mode-btn" data-mode="Coding Assistant">Coding Assistant</button>
+    <button class="mode-btn" data-mode="Image & Video Studio">Image & Video Studio</button>
+    <button class="mode-btn" data-mode="Voice Studio">Voice Studio</button>
+  </div>
+
   <div id="chat-box">
-    <div class="msg ai">স্বাগতম! FXA AI-এর প্রথম ভার্সন রেডি। নিচে তোমার মেসেজ লিখে পাঠাও।</div>
+    <div class="msg ai">স্বাগতম! FXA AI-তে তোমাকে স্বাগতম। উপর থেকে মোড (Chat, Coding, Image & Video Studio, Voice) বেছে নিয়ে কাজ শুরু করো।</div>
   </div>
 
   <form id="chat-form">
-    <input id="msg-input" type="text" placeholder="এখানে লিখো..." required />
-    <button type="submit">Send</button>
+    <button type="button" class="btn-voice" id="voice-btn" title="Voice">Voice</button>
+    <input id="msg-input" type="text" placeholder="এখানে তোমার কমান্ড বা প্রশ্ন লিখো..." required />
+    <button type="submit" class="btn-action">Send</button>
   </form>
 
   <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js').catch(() => {});
+      });
+    }
+
+    let currentMode = 'AI Chat';
+    const modeBtns = document.querySelectorAll('.mode-btn');
+    const badge = document.getElementById('active-mode-badge');
     const form = document.getElementById('chat-form');
     const input = document.getElementById('msg-input');
     const chatBox = document.getElementById('chat-box');
+    const voiceBtn = document.getElementById('voice-btn');
+
+    modeBtns.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        modeBtns.forEach((b) => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentMode = btn.dataset.mode;
+        badge.textContent = currentMode;
+        addMsg('মোড পরিবর্তন হয়েছে: [' + currentMode + ']', 'ai');
+      });
+    });
 
     function addMsg(text, sender) {
       const div = document.createElement('div');
@@ -113,15 +185,51 @@
       chatBox.scrollTop = chatBox.scrollHeight;
     }
 
+    function speakText(text) {
+      if ('speechSynthesis' in window) {
+        const utter = new SpeechSynthesisUtterance(text);
+        window.speechSynthesis.cancel();
+        window.speechSynthesis.speak(utter);
+      }
+    }
+
+    voiceBtn.addEventListener('click', () => {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRecognition) {
+        addMsg('এই ডিভাইসে সরাসরি Speech Recognition সাপোর্ট পাওয়া যায়নি; চাইলে টেক্সট লিখে Voice মোড ব্যবহার করতে পারো।', 'ai');
+        return;
+      }
+      const rec = new SpeechRecognition();
+      rec.lang = 'bn-BD';
+      rec.start();
+      addMsg('শুনছি... কথা বলো।', 'ai');
+      rec.onresult = (event) => {
+        const spoken = event.results[0][0].transcript;
+        input.value = spoken;
+      };
+    });
+
     form.addEventListener('submit', (e) => {
       e.preventDefault();
       const text = input.value.trim();
       if (!text) return;
       addMsg(text, 'user');
       input.value = '';
+
       setTimeout(() => {
-        addMsg('মেসেজ পেয়েছি: "' + text + '" — পরবর্তী ধাপে লাইভ AI কানেক্ট করা হবে।', 'ai');
-      }, 300);
+        let reply = '';
+        if (currentMode === 'Coding Assistant') {
+          reply = '[' + currentMode + '] "' + text + '" — কোড স্ট্রাকচার ও লজিক প্রস্তুত করা হচ্ছে। (পরবর্তী ধাপে লাইভ AI ব্যাকএন্ড যুক্ত হবে)';
+        } else if (currentMode === 'Image & Video Studio') {
+          reply = '[' + currentMode + '] প্রম্পট ড্রাফট: "' + text + '", ultra-detailed dark neon aesthetic, high contrast.';
+        } else if (currentMode === 'Voice Studio') {
+          reply = '[' + currentMode + '] ভয়েস রেসপন্স প্রস্তুত: "' + text + '"';
+          speakText(text);
+        } else {
+          reply = '[' + currentMode + '] "' + text + '" — রিকোয়েস্ট গ্রহণ করা হয়েছে। (লাইভ AI কানেকশন পরবর্তী ধাপে যুক্ত হবে)';
+        }
+        addMsg(reply, 'ai');
+      }, 250);
     });
   </script>
 </body>
